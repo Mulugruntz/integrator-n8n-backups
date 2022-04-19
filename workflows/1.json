@@ -15,20 +15,20 @@
     },
     {
       "parameters": {
-        "command": "cd $BACKUP_DIR_GIT\n\ngit push"
+        "command": "cd $GIT_BACKUP_DIR\n\ngit push"
       },
       "name": "git push",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
         840,
-        440
+        460
       ],
       "alwaysOutputData": false
     },
     {
       "parameters": {
-        "command": "=cd $BACKUP_DIR_GIT\ngit add workflows/*\ngit commit -m \"[Auto] Workflows {{ new Date().toISOString() }}\" workflows\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
+        "command": "=cd $GIT_BACKUP_DIR\ngit add workflows/*\ngit commit -m \"[Auto] Workflows {{ new Date().toISOString() }}\" workflows\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
       },
       "name": "git add & git commit",
       "type": "n8n-nodes-base.executeCommand",
@@ -52,7 +52,7 @@
     },
     {
       "parameters": {
-        "command": "cd $BACKUP_DIR_GIT\ngit fetch --all\ngit reset --hard origin/master"
+        "command": "cd $GIT_BACKUP_DIR\ngit fetch --all\ngit reset --hard origin/main"
       },
       "name": "git pull rebase",
       "type": "n8n-nodes-base.executeCommand",
@@ -64,7 +64,7 @@
     },
     {
       "parameters": {
-        "command": "=cd $BACKUP_DIR_GIT\ngit add credentials/*\ngit commit -m \"[Auto] Credentials {{ new Date().toISOString() }}\" credentials\ncode=$?\n\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
+        "command": "=cd $GIT_BACKUP_DIR\ngit add credentials/*\ngit commit -m \"[Auto] Credentials {{ new Date().toISOString() }}\" credentials\ncode=$?\n\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
       },
       "name": "git add & git commit1",
       "type": "n8n-nodes-base.executeCommand",
@@ -76,7 +76,7 @@
     },
     {
       "parameters": {
-        "command": "mkdir -p $BACKUP_DIR_GIT/credentials\nnpx n8n export:credentials --backup --decrypted --output $BACKUP_DIR_GIT/credentials\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
+        "command": "mkdir -p $GIT_BACKUP_DIR/credentials\nnpx n8n export:credentials --backup --decrypted --output $GIT_BACKUP_DIR/credentials\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
       },
       "name": "n8n export credentials",
       "type": "n8n-nodes-base.executeCommand",
@@ -88,7 +88,7 @@
     },
     {
       "parameters": {
-        "command": "mkdir -p $BACKUP_DIR_GIT/workflows\nnpx n8n export:workflow --backup --output $BACKUP_DIR_GIT/workflows\n\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
+        "command": "mkdir -p $GIT_BACKUP_DIR/workflows\nnpx n8n export:workflow --backup --output $GIT_BACKUP_DIR/workflows\n\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
       },
       "name": "n8n export workflows",
       "type": "n8n-nodes-base.executeCommand",
@@ -339,7 +339,7 @@
     }
   },
   "createdAt": "2021-11-03T11:39:59.313Z",
-  "updatedAt": "2022-04-19T11:41:03.997Z",
+  "updatedAt": "2022-04-19T15:01:12.223Z",
   "settings": {},
   "staticData": null
 }
