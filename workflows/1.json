@@ -1,0 +1,345 @@
+{
+  "id": 1,
+  "name": "Backup workflows & credentials",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "command": "cd $BACKUP_DIR_GIT\n\ngit push"
+      },
+      "name": "git push",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        840,
+        440
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "command": "=cd $BACKUP_DIR_GIT\ngit add workflows/*\ngit commit -m \"[Auto] Workflows {{ new Date().toISOString() }}\" workflows\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
+      },
+      "name": "git add & git commit",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        460,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=git config --global user.email \"{{$json[\"GIT_USER_EMAIL\"]}}\"\ngit config --global user.name \"{{$json[\"GIT_USER_NAME\"]}}\""
+      },
+      "name": "git config",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "command": "cd $BACKUP_DIR_GIT\ngit fetch --all\ngit reset --hard origin/master"
+      },
+      "name": "git pull rebase",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        0,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=cd $BACKUP_DIR_GIT\ngit add credentials/*\ngit commit -m \"[Auto] Credentials {{ new Date().toISOString() }}\" credentials\ncode=$?\n\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
+      },
+      "name": "git add & git commit1",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        480,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "command": "mkdir -p $BACKUP_DIR_GIT/credentials\nnpx n8n export:credentials --backup --decrypted --output $BACKUP_DIR_GIT/credentials\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
+      },
+      "name": "n8n export credentials",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        160,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "command": "mkdir -p $BACKUP_DIR_GIT/workflows\nnpx n8n export:workflow --backup --output $BACKUP_DIR_GIT/workflows\n\n\ncode=$?\nif [ $code -eq 0 ] ; then\n  >&2 echo \"OK\"\nelse\n  >&2 echo \"KO\"\nfi"
+      },
+      "name": "n8n export workflows",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        160,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"stderr\"]}}",
+              "value2": "OK"
+            }
+          ]
+        }
+      },
+      "name": "if export WF OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        300,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"stderr\"]}}",
+              "value2": "OK"
+            }
+          ]
+        }
+      },
+      "name": "if export CR OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        300,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"stderr\"]}}",
+              "value2": "OK"
+            }
+          ]
+        }
+      },
+      "name": "if WF is committed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        620,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"stderr\"]}}",
+              "value2": "OK"
+            }
+          ]
+        }
+      },
+      "name": "if CR is committed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        620,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "GIT_USER_EMAIL",
+              "value": "mulugruntz@gmail.com"
+            },
+            {
+              "name": "GIT_USER_NAME",
+              "value": "n8n Backup Bot"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        460
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "git config": {
+      "main": [
+        [
+          {
+            "node": "git pull rebase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "git pull rebase": {
+      "main": [
+        [
+          {
+            "node": "n8n export workflows",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "n8n export credentials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "git add & git commit": {
+      "main": [
+        [
+          {
+            "node": "if WF is committed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "git add & git commit1": {
+      "main": [
+        [
+          {
+            "node": "if CR is committed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n export credentials": {
+      "main": [
+        [
+          {
+            "node": "if export CR OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n export workflows": {
+      "main": [
+        [
+          {
+            "node": "if export WF OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if export WF OK": {
+      "main": [
+        [
+          {
+            "node": "git add & git commit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if export CR OK": {
+      "main": [
+        [
+          {
+            "node": "git add & git commit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if WF is committed": {
+      "main": [
+        [
+          {
+            "node": "git push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if CR is committed": {
+      "main": [
+        [
+          {
+            "node": "git push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "git config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2021-11-03T11:39:59.313Z",
+  "updatedAt": "2022-04-19T11:41:03.997Z",
+  "settings": {},
+  "staticData": null
+}
